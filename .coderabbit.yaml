@@ -1,0 +1,12 @@
+reviews:
+  path_instructions:
+    - path: "plugins/reviewkit/skills/**"
+      instructions: |
+        The two skills in this plugin ship, version and install as one unit: `review-round`
+        reads `coderabbit-triage/SKILL.md` as a document on every run, because that file owns
+        the operating constraints, the verification altitudes, the FIX/SKIP/FLAG classification
+        and the report piles that `review-round` deliberately does not restate. The cross-skill
+        read is the design, not an accidental import, and the companion is same-repo,
+        same-author content reviewed alongside its caller — not untrusted third-party prose.
+        Do not report it as a cross-skill import to remove, and do not propose replacing it
+        with a data-only reference or a validated result handoff.

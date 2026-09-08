@@ -29,10 +29,8 @@ name is `reviewkit:coderabbit-triage` — plugin skills register under their plu
 If `REPO-NOTES.md` sits at the repository root, **read it first** — Lane C needs it before it
 runs, and steps 3 to 5 all depend on it. Its headings are its own index; this skill deliberately
 does not restate them, because a copy of that list here would be one more thing to keep current.
-It owns the repository's own facts — how to validate, what is generated and in what order, how
-this build reports a stale green, which findings are known noise, and which configuration
-enumerates paths. `coderabbit-triage` reads the same file, which is why neither skill states
-those facts itself.
+It owns the repository's own facts, and `coderabbit-triage` reads the same file, which is why
+neither skill states them itself.
 
 If it is absent, recover what you can and say what you could not: the validation commands come
 off the build files (step 5), and the generated-input ordering off the build file's generator
@@ -74,12 +72,12 @@ not before.
 The base branch is `main`, assumed rather than resolved — `coderabbit-triage`'s **User Input**
 states that assumption and is where a repository with a different name changes it.
 
-| scope | file list |
-|---|---|
-| *(nothing)* | `git diff --cached --name-only`, `git diff --name-only`, `git ls-files --others --exclude-standard` |
-| `branch` | `git diff main...HEAD --name-only`, `git diff --cached --name-only`, `git diff --name-only`, `git ls-files --others --exclude-standard` |
-| `committed` | `git diff main...HEAD --name-only` |
-| a path | the `branch` row's commands, each with `-- <path>` |
+| scope       | file list                                                                                                                               |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| *(nothing)* | `git diff --cached --name-only`, `git diff --name-only`, `git ls-files --others --exclude-standard`                                     |
+| `branch`    | `git diff main...HEAD --name-only`, `git diff --cached --name-only`, `git diff --name-only`, `git ls-files --others --exclude-standard` |
+| `committed` | `git diff main...HEAD --name-only`                                                                                                      |
+| a path      | the `branch` row's commands, each with `-- <path>`                                                                                      |
 
 A path does not combine with `branch` or `committed`; pass one scope.
 

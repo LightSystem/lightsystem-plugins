@@ -2,14 +2,14 @@
 
 Two skills for reviewing a change with more than one detector and trusting none of them.
 
-| skill | what it does |
-|---|---|
-| `/reviewkit:review-round` | Runs all three lanes — `/simplify`, the CodeRabbit CLI, IntelliJ's inspection engine — concurrently over one resolved scope, then merges, deduplicates and verifies every finding before acting on it. |
-| `/reviewkit:coderabbit-triage` | The CodeRabbit lane on its own, plus the verification altitudes, the FIX/SKIP/FLAG classification and the report piles that `review-round` defers to. |
+| skill                          | what it does                                                                                                                                                                                           |
+|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `/reviewkit:review-round`      | Runs all three lanes — `/simplify`, the CodeRabbit CLI, IntelliJ's inspection engine — concurrently over one resolved scope, then merges, deduplicates and verifies every finding before acting on it. |
+| `/reviewkit:coderabbit-triage` | The CodeRabbit lane on its own, plus the verification altitudes, the FIX/SKIP/FLAG classification and the report piles that `review-round` defers to.                                                  |
 
-`review-round` reads `coderabbit-triage` as a document even when that lane cannot run, so install
-both or neither. Each lane is independently optional: a missing one is reported, never silently
-dropped.
+`review-round` reads `coderabbit-triage` as a document even when that lane cannot run, which is why
+they ship as one plugin rather than two. Each lane is independently optional: a missing one is
+reported, never silently dropped.
 
 ## Requirements
 

@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "lightsystem-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "LightSystem/lightsystem-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "reviewkit@lightsystem-plugins": true
+  }
+}

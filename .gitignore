@@ -1,0 +1,6 @@
+# Contents ignored; a file is negated only once proven machine-independent and not rewritten by
+# the IDE import. `misc.xml` pins the JDK this machine happens to have, `vcs.xml` is regenerated
+# on open, and `.idea/.gitignore` is redundant with the deny-all above it.
+.idea/*
+!.idea/modules.xml
+!.idea/lightsystem-plugins.iml
