@@ -3,7 +3,7 @@ name: "coderabbit-triage"
 description: "Run a local CodeRabbit CLI review over the working tree, verify every finding against the actual code, fix the ones that are real errors or simplifications, flag the ones needing a human decision, and feed the durable conventions back into .coderabbit.yaml path_instructions."
 compatibility: "Requires the CodeRabbit CLI (`cr`/`coderabbit`) on PATH and authenticated (`cr auth login`), and `jq`, which step 1 parses the review's output with. No GitHub remote and no `gh` needed — this reviews the working tree, not a pull request. Reads `REPO-NOTES.md` at the repository root when it exists, for the validation commands and the generated-input ordering; every reference to it carries a fallback, so it is optional."
 metadata:
-  author: "project"
+  author: "João Horta Alves"
 user-invocable: true
 disable-model-invocation: false
 ---

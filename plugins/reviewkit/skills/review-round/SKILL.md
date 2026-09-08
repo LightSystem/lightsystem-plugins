@@ -3,7 +3,7 @@ name: "review-round"
 description: "Run a full review round — the bundled /simplify angles, a local CodeRabbit CLI review, and IntelliJ's inspection engine — concurrently over the same scope, then merge, dedup and verify every finding before acting on it."
 compatibility: "The companion `coderabbit-triage` skill is **required as a document** — this skill defers to it for the operating constraints, the verification altitudes, the FIX/SKIP/FLAG classification and the report piles, none of which depend on its lane running. The three lanes are each optional: that skill running the CodeRabbit CLI (on PATH and authenticated), Claude Code's bundled `/simplify`, and IntelliJ IDEA with its MCP server connected (`mcp__idea__*`). If a lane is unavailable, say so in the report and run the rest — never silently drop one."
 metadata:
-  author: "project"
+  author: "João Horta Alves"
 user-invocable: true
 disable-model-invocation: false
 ---
@@ -16,6 +16,13 @@ $ARGUMENTS
 
 Scope only, passed through to every lane. Step 1 maps each accepted value to a file list;
 anything not in that table has no defined effect, so say so rather than improvising one.
+
+## The companion skill
+
+`coderabbit-triage` is required as a **document**, whether or not Lane A runs: read
+`${CLAUDE_PLUGIN_ROOT}/skills/coderabbit-triage/SKILL.md` before step 1. Every reference to it
+below points at that file. Where a step delegates to it rather than quoting it, its Skill-tool
+name is `reviewkit:coderabbit-triage` — plugin skills register under their plugin's prefix.
 
 ## Repository notes
 

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "lightsystem-plugins",
+  "description": "Personal Claude Code plugins by João Horta Alves.",
+  "owner": {
+    "name": "João Horta Alves"
+  },
+  "plugins": [
+    {
+      "name": "reviewkit",
+      "description": "A review round that runs /simplify, the CodeRabbit CLI and IntelliJ's inspection engine over one scope, then verifies every finding before acting on it.",
+      "author": {
+        "name": "João Horta Alves"
+      },
+      "category": "development",
+      "source": "./plugins/reviewkit",
+      "homepage": "https://github.com/LightSystem/lightsystem-plugins/tree/main/plugins/reviewkit"
+    }
+  ]
+}
