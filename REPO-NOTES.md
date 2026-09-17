@@ -10,7 +10,7 @@ step that regenerates an input on your behalf. Run what the change touches:
 
 ```sh
 claude plugin validate . --strict                    # the marketplace manifest
-claude plugin validate ./plugins/reviewkit --strict  # the plugin manifest, and every skill in it
+claude plugin validate ./plugins/<name> --strict     # a plugin manifest, and every skill in it; one per plugin touched
 cr config validate                                   # .coderabbit.yaml
 jq empty <file>                                      # any JSON edited
 ```
@@ -63,11 +63,11 @@ project-relative and repo-relative paths are interchangeable.
 
 ## Configuration that enumerates paths
 
-Both go stale the moment `plugins/reviewkit/` is renamed or a second plugin is added, and neither
-failure is loud — the next review simply runs under a false premise. Check them against any
-rename:
+Both go stale the moment a plugin is renamed, and neither failure is loud — the next
+review simply runs under a false premise. Check them against any rename:
 
-- `.coderabbit.yaml` — `path_instructions` is scoped to the glob `plugins/reviewkit/skills/**`.
+- `.coderabbit.yaml` — one `path_instructions` entry is scoped to `plugins/reviewkit/skills/**`.
+  The entry globbing `plugins/*/skills/**` needs no upkeep.
 - `.claude-plugin/marketplace.json` — each entry carries a `source` path and a `homepage` URL that
   restates it. `claude plugin tag` validates that an entry and its `plugin.json` agree, which is
   why the duplicated `name`/`description`/`author` between them is intended, not drift waiting to
@@ -75,8 +75,13 @@ rename:
 
 ## Install scope
 
-The plugin is declared at **project** scope in `.claude/settings.json`, so a fresh clone picks it
-up without per-developer setup. The marketplace source is `github:LightSystem/lightsystem-plugins`
-— the published repository, not this working copy. A session in this repo therefore runs the
-*released* reviewkit, so uncommitted or unpushed skill edits are not what is executing. Push
-before testing a skill change through the plugin, or read the edited `SKILL.md` directly.
+Plugins listed in `enabledPlugins` in `.claude/settings.json` are declared at **project** scope, so
+a fresh clone picks them up without per-developer setup. The marketplace source is
+`github:LightSystem/lightsystem-plugins` — the published repository, not this working copy. A
+session in this repo therefore runs each enabled plugin's *released* version, so uncommitted or
+unpushed skill edits are not what is executing. Push before testing a skill change through the
+plugin, or read the edited `SKILL.md` directly.
+
+Not enabled, deliberately:
+
+- `sddkit` — this repository does not use Spec Kit, so it has nothing to upgrade.

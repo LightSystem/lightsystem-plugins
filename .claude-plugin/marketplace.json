@@ -15,6 +15,16 @@
       "category": "development",
       "source": "./plugins/reviewkit",
       "homepage": "https://github.com/LightSystem/lightsystem-plugins/tree/main/plugins/reviewkit"
+    },
+    {
+      "name": "sddkit",
+      "description": "Upgrades a Spec Kit project: the CLI, then its integration files and extensions, keeping templates byte-identical to upstream.",
+      "author": {
+        "name": "João Horta Alves"
+      },
+      "category": "development",
+      "source": "./plugins/sddkit",
+      "homepage": "https://github.com/LightSystem/lightsystem-plugins/tree/main/plugins/sddkit"
     }
   ]
 }

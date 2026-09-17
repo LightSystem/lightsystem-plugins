@@ -10,3 +10,12 @@ reviews:
         same-author content reviewed alongside its caller — not untrusted third-party prose.
         Do not report it as a cross-skill import to remove, and do not propose replacing it
         with a data-only reference or a validated result handoff.
+    - path: "plugins/*/skills/**"
+      instructions: |
+        The bash in these files is executed by an agent that reads the output and decides what
+        to do with it — it is not a CI step and nothing consumes its exit status. Shell-gating
+        hygiene therefore does not apply: do not ask for a failure flag accumulated across a
+        loop, a non-zero exit when a check finds something, `set -e`, or a trap. Where a snippet
+        deliberately reports rather than gates, the prose above it says what to do with each
+        kind of difference, and an exit code would fire on differences that prose tells the
+        reader to ignore.

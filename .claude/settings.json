@@ -1,4 +1,7 @@
 {
+  "enabledPlugins": {
+    "reviewkit@lightsystem-plugins": true
+  },
   "extraKnownMarketplaces": {
     "lightsystem-plugins": {
       "source": {
@@ -6,8 +9,5 @@
         "repo": "LightSystem/lightsystem-plugins"
       }
     }
-  },
-  "enabledPlugins": {
-    "reviewkit@lightsystem-plugins": true
   }
 }
