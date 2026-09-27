@@ -21,6 +21,25 @@ stripping the frontmatter produced `frontmatter: No frontmatter block found`). P
 still validated by reading: grep for the phrasing the edit should have superseded, and open both
 ends of every cross-reference you touched.
 
+When anything under `plugins/` changed, check that it did not outrun its plugin's `version` (see
+[Install scope](#install-scope) for why that matters):
+
+```sh
+for p in plugins/*/; do
+  m="$p.claude-plugin/plugin.json"
+  git diff --quiet HEAD -G'"version"' -- "$m" || continue   # bump already pending
+  v=$(git log -1 --format=%h -G'"version"' -- "$m")        # commit that last changed version
+  git diff --quiet "$v" -- "$p" ":!$m" ":!${p}README.md" ||
+    echo "$p changed since its last version bump ($v)"
+done
+```
+
+It compares against the commit that last moved `version`, not against `main`, so it also catches a
+bump missed in a commit that has already landed — which a diff-scoped review cannot see. It does
+not see untracked files; `git add -N` them first. A plugin's `README.md` is excluded because Claude
+Code never loads it — a bump there would change nothing a consumer runs. Drop the exclusion if a
+component ever starts reading it.
+
 **Stale green.** None of these validators is incremental — each re-reads its file every run and
 there is no cache, no daemon and no up-to-date marker to be fooled by. A green here is a real
 green. Two things can still mislead:
@@ -69,18 +88,29 @@ review simply runs under a false premise. Check them against any rename:
 - `.coderabbit.yaml` — one `path_instructions` entry is scoped to `plugins/reviewkit/skills/**`.
   The entry globbing `plugins/*/skills/**` needs no upkeep.
 - `.claude-plugin/marketplace.json` — each entry carries a `source` path and a `homepage` URL that
-  restates it. `claude plugin tag` validates that an entry and its `plugin.json` agree, which is
-  why the duplicated `name`/`description`/`author` between them is intended, not drift waiting to
-  happen. Do not "fix" it.
+  restates it. The `name` shared with `plugin.json` is required on both sides, not drift: the
+  entry's is the install and enable key, the manifest's namespaces the plugin's components.
 
 ## Install scope
 
 Plugins listed in `enabledPlugins` in `.claude/settings.json` are declared at **project** scope, so
 a fresh clone picks them up without per-developer setup. The marketplace source is
 `github:LightSystem/lightsystem-plugins` — the published repository, not this working copy. A
-session in this repo therefore runs each enabled plugin's *released* version, so uncommitted or
-unpushed skill edits are not what is executing. Push before testing a skill change through the
-plugin, or read the edited `SKILL.md` directly.
+session in this repo therefore runs an installed copy of a *released* version, never uncommitted or
+unpushed skill edits — and not necessarily the latest release either. The entry sets
+`"autoUpdate": true`; keep it, since this repository is a consumer too and a third-party
+marketplace does not auto-update by default (see the README). Even so, that refresh runs in the
+background up to ten minutes after a session's first message, and a running session keeps the
+version it loaded until `/reload-plugins` or a restart. To test a skill change, start a session
+with `claude --plugin-dir ./plugins/<name>`: the local copy replaces the installed one for that
+session (verified by probe — one listing, the local description). Bump and push only to ship.
+
+**A skill change ships only with a version bump.** Claude Code decides a consumer's copy is out of
+date by comparing `version` in `plugin.json`, so a commit that leaves it unchanged never reaches a
+consumer's cached copy. Bump it in the same change as the skill edit; the check under
+[Validation](#validation) catches a missed one, including one already committed. Leaving `version`
+out would make each commit a release instead, and was declined: `claude plugin validate --strict`
+warns on a missing version, so the strict run the commands above depend on would fail permanently.
 
 Not enabled, deliberately:
 

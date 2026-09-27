@@ -14,6 +14,12 @@ repository's `.claude/settings.json`, so a fresh clone picks them up without per
 One without the other half-configures the project: the marketplace add writes
 `extraKnownMarketplaces`, the install writes `enabledPlugins`, and a fresh clone needs both.
 
+Neither turns on updates. A third-party marketplace does not auto-update by default, so an
+installed plugin stays on the copy it was installed at until
+`claude plugin update <name>@lightsystem-plugins`. Add `"autoUpdate": true` beside `source` in the
+`extraKnownMarketplaces` entry, or turn on **Enable auto-update** for the marketplace in
+`/plugin`'s **Marketplaces** tab.
+
 ## Plugins
 
 | plugin                           | what it is                                                                                                                                                    |
