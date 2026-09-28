@@ -19,7 +19,9 @@ jq empty <file>                                      # any JSON edited
 directory — a `SKILL.md` with missing or malformed frontmatter is reported (verified by probe:
 stripping the frontmatter produced `frontmatter: No frontmatter block found`). Prose changes are
 still validated by reading: grep for the phrasing the edit should have superseded, and open both
-ends of every cross-reference you touched.
+ends of every cross-reference you touched. A claim about what a consumer gets is validated by probe
+where its precondition holds (for a fresh clone, a directory with no install record), never in this
+checkout, which is already installed and passes whatever the claim says.
 
 When anything under `plugins/` changed, check that it did not outrun its plugin's `version` (see
 [Install scope](#install-scope) for why that matters):
@@ -93,8 +95,9 @@ review simply runs under a false premise. Check them against any rename:
 
 ## Install scope
 
-Plugins listed in `enabledPlugins` in `.claude/settings.json` are declared at **project** scope, so
-a fresh clone picks them up without per-developer setup. The marketplace source is
+Plugins listed in `enabledPlugins` in `.claude/settings.json` are declared at **project** scope;
+a clone still needs its own install before they load (see the README); verified by probe in a
+directory holding these settings and no install record. The marketplace source is
 `github:LightSystem/lightsystem-plugins` — the published repository, not this working copy. A
 session in this repo therefore runs an installed copy of a *released* version, never uncommitted or
 unpushed skill edits — and not necessarily the latest release either. The entry sets
