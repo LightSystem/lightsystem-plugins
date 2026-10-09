@@ -55,9 +55,11 @@ Two additions this skill needs:
   routinely wrong, and the value is in verifying them, not applying them. Two lanes agreeing is
   signal, not proof — verification is per finding, never per lane, and never inherited from a
   second reporter.
-- **Respect the diff boundary.** Fix findings in files the scope already touches. A finding in
-  an untouched file gets **listed, not fixed** — folding unrelated cleanups into a feature
-  commit muddies history. Offer them as a separate `chore` commit.
+- **Fix early, wherever the finding is.** A verified finding gets the same FIX/SKIP/FLAG
+  treatment whether or not its file is in the scope — correcting it now is cheaper than carrying
+  it, and a deferred cleanup rarely gets done. Don't defer one to a separate `chore` commit or
+  recommend splitting commits; the commit shape is the user's call. The minimal-changes bar still
+  applies: fix the named defect, just not only in scoped files.
 
 ## Execution
 
@@ -231,8 +233,7 @@ Report what you ran and what it said. If something fails, say so with the output
 evidence each carries. Report **one merged set** of them, not three reports stapled together.
 Three additions:
 
-- **Out of scope** — a fifth pile: findings in untouched files, listed for a separate `chore`
-  commit.
+- **Outside the scope** — mark which Fixed findings landed in files the scope did not cover.
 - **Attribution** — note which lane found a finding where that is interesting, and say when
   more than one found it independently.
 - **Coverage** — state which lanes ran and which did not; step 7 already requires the scope. A

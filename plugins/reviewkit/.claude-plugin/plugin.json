@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "reviewkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A review round that runs /simplify, the CodeRabbit CLI and IntelliJ's inspection engine over one scope, then verifies every finding before acting on it.",
   "author": {
     "name": "João Horta Alves"
