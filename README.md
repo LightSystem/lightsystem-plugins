@@ -29,4 +29,4 @@ installed plugin stays on the copy it was installed at until
 | plugin                           | what it is                                                                                                                                                    |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`reviewkit`](plugins/reviewkit) | A review round over three detectors — `/simplify`, the CodeRabbit CLI, IntelliJ's inspections — merged, deduplicated and verified before anything is applied. |
-| [`sddkit`](plugins/sddkit)       | Spec Kit upgrades for spec-driven projects: the CLI, then the integration files and extensions, with templates kept pristine.                                 |
+| [`sddkit`](plugins/sddkit)       | Spec Kit upgrades for spec-driven projects: the CLI, then the integration files and extensions, with template edits treated as drift to reset.                |

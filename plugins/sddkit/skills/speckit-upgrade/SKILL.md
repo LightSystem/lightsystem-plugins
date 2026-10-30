@@ -22,15 +22,16 @@ Those are the reason this skill exists.
 upstream.** What a project needs to say belongs in
 `.specify/memory/constitution.md`, which `plan`, `tasks` and `analyze` read at
 runtime; a template edit is a second copy with no reader, and it drifts in
-silence. So a modified template is drift to reset, never a customization to
-weigh — which is why nothing below is a restore procedure. A project that
+silence. So a modified template is drift to reset; the user may keep one anyway,
+but nothing below is a restore procedure. A project that
 instead treats materialized templates as reviewed, committed artifacts wants
 `specify preset add constitution-sync` and a different skill.
 
-Two placeholders appear throughout. `<key>` is an installed integration key — the
+Three placeholders appear throughout. `<key>` is an installed integration key — the
 agent the project was initialized for (`claude`, `copilot`, `cursor`, …); read
-the real ones out of Step 2 rather than assuming. `<agent-dir>` is where that
-integration renders its command or skill files (`.claude/skills/` for Claude
+the real ones out of Step 2 rather than assuming. `<default-key>` is
+`default_integration` in `specify integration status --json`. `<agent-dir>` is where
+an integration renders its command or skill files (`.claude/skills/` for Claude
 Code, and the equivalent elsewhere).
 
 ## Execution
@@ -49,16 +50,16 @@ the manifest is one Step 4 refreshes instead of preserving.
 
 ```bash
 specify self check
-specify integration status
+specify integration status --json
 ```
 
-Report both, and **write down which files are reported modified** — Step 6
-compares against that list. The status output predicts Step 4: files reported
-modified under `speckit` (shared infrastructure — `.specify/scripts/`,
-`.specify/templates/`) are preserved; files reported under an integration key
-block the run. If the CLI is current and nothing is modified, say so and ask
-whether to continue anyway — extension versions are tracked separately from the
-CLI's.
+Report them, and **write down each manifest's `modified_files` and
+`missing_files`** — Step 6 compares against that list. The status output
+predicts Step 4: files reported modified under `speckit` (shared infrastructure
+— `.specify/scripts/`, `.specify/templates/`) are preserved; files reported
+under an integration key block the run. If the CLI is current and nothing is
+modified, say so and ask whether to continue anyway — extension versions are
+tracked separately from the CLI's.
 
 Then read the release notes of every release after the older of two versions —
 the installed CLI's, and `speckit_version` in `.specify/init-options.json`, which
@@ -118,26 +119,30 @@ diff says which were; ignore the warning and its `--force` suggestion.
 Being preserved or blocked on — Step 2 predicts which — is the check working,
 not an error. Name each file the run reports, say what the upgrade would have
 changed in it, and ask — never decide on the user's behalf that a customization
-is expendable.
+is expendable. A block refreshes nothing. The way out without `--force` is to delete
+every file it lists, re-run, then re-apply a kept edit to the new file, which blocks
+the next upgrade again. A preset's overrides come back on their own.
 
-**A preserved template is drift.** Reset it. If it carries something the
-constitution does not state — a required section, a fixed table layout, an agreed
-vocabulary — record that in the constitution first, through the project's own
-amendment procedure, so nothing is lost; then reset. To reset, delete the file
+**A preserved template is drift.** Recommend resetting it, and ask. If it carries
+something the constitution does not state — a required section, a fixed table layout,
+an agreed vocabulary — record that in the constitution first, through the project's
+own amendment procedure, so nothing is lost; then reset. To reset, delete the file
 and re-run this step's command: it rewrites any managed file that is absent and
-leaves every other one alone. `git checkout` is the wrong instinct — Step 1
-mandates a clean tree, so drift that survives to here is committed drift, and
-restoring HEAD restores it.
+leaves every other one alone. A block stops this too and leaves the template
+missing, so take the way out above in the same run. `git checkout` is the wrong
+instinct — Step 1 mandates a clean tree, so drift that survives to here is committed
+drift, and restoring HEAD restores it. If the user keeps the template anyway, record
+it as kept for Step 6 and Output item 3.
 
 Do not diff a template against the CLI's bundled copy to judge whether it is
 customized. The bundle stores `__SPECKIT_COMMAND_<NAME>__` placeholders, so a raw
 diff reports a difference in **every** template. The manifest hash check behind
 `integration status` is the authority.
 
-After this step `integration status` should report no modified template. Whatever
-else it reports is the project's declared steady state — record it, because a
-future run seeing a different one needs to know whether that is drift or a
-decision.
+After this step `integration status` should report no modified template the user
+did not keep. Whatever else it reports is the project's declared steady state —
+record it, because a future run seeing a different one needs to know whether that
+is drift or a decision.
 
 **Never pass `--force` on your own initiative.**
 
@@ -151,28 +156,78 @@ It asks for confirmation and has no `--yes` flag, so under an agent's stdin the
 first run lists what it would update and then aborts on EOF. Treat that listing
 as the ask; once the user approves, re-run it as
 `printf 'y\n' | specify extension update`. Reporting the abort as a failed run
-is the mistake to avoid — nothing was attempted.
+is the mistake to avoid — nothing was attempted. With nothing to install it exits
+0 without asking.
 
-The rendered command or skill files for installed extensions live under
-`<agent-dir>`, so they change here rather than in Step 4.
+A key that was default earlier through `integration use` still has its extension
+skills, and `extension update` or `add --force` deletes them where no upgrade
+restores them, so say so when asking.
+
+Unless it blocked, Step 4 re-rendered the extensions' command or skill files under
+`<agent-dir>`, for the default integration only. They are in no manifest, so
+`integration status` cannot see a local edit and the re-render overwrites it: look
+in `git diff -- <agent-dir>` and report any.
+
+**An extension that really changed goes back through Step 4's command.** As of
+v1.2.5, `extension update` and `extension add --force` write skills in a different
+layout from `integration upgrade` on most skills-based integrations
+(`metadata.source` is `<id>:commands/...`, not `extension:<id>`) and empty
+`registered_skills`. Only the default key's run repairs that, so after a run that
+reports "Successfully updated", run this in the project before diffing:
+
+```bash
+specify integration upgrade <default-key>
+```
+
+On a single-renderer integration this only touches a manifest timestamp, so the rule
+holds for any key.
+
+A block (Step 4), including one from a preset overriding a core file, stops this too,
+and nothing renders. As of v1.2.5 the diff below then reports the extension skills it
+could not restore, whether or not anything updated. That is not staleness, and
+`add --force` will not clear it. Offer Step 4's way out.
+
+`integration upgrade` also skips a disabled extension, and `add --force` re-enables
+one and resets its priority, so restore both afterward. If the diff reports a
+disabled extension's skills, run `specify extension enable <id>`,
+`specify integration upgrade <default-key>`, then `specify extension disable <id>`.
 
 **"Up to date" is not evidence the payload matches.** That check compares the
 declared `version` in `extension.yml`, and upstream ships content changes without
 bumping it — observed on a core extension whose installed and bundled copies both
 declared `1.0.0` while their command files, scripts and README differed
-substantially. Confirm it against a reference project instead: rendered by `init`
-in an empty scratch directory, never the project, once per key, with the script
-from `.specify/init-options.json` and every extension installed here. Keep it for
-Step 6 by its printed path — a shell variable does not survive to a later command.
+substantially. Confirm it against a reference project instead: rendered in an empty
+scratch directory, never the project, with the script from
+`.specify/init-options.json`, any `integration_settings.<default-key>.raw_options`
+from `.specify/integration.json` as `--integration-options`, and every extension
+installed here. Keep it for Step 6 by its printed path — a shell variable does not
+survive to a later command.
 
 ```bash
 REF=$(mktemp -d); echo "$REF"
-(cd "$REF" && specify init --here --force --integration <key> --script <script> \
-    --ignore-agent-tools --extension <id> --extension <id> < /dev/null)
+(cd "$REF" && specify init --here --force --integration <default-key> --script <script> \
+    --ignore-agent-tools --extension <id> --extension <id> < /dev/null &&
+    specify integration upgrade <default-key>)
 for d in .specify/templates .specify/scripts .specify/extensions <agent-dir>; do
     diff -r -q "$REF/$d" "$d"
 done
 ```
+
+The `integration upgrade` is there because `init` alone renders extension skills as
+`extension add` does, so its diff would report every one of them as stale.
+
+Add to the subshell, after that upgrade, whatever else the project has:
+
+- each preset, as `specify preset add <id>`. Given to `init` instead, it blocks the
+  reference's own upgrade.
+- each other integration, as `specify integration install <other>` with its recorded
+  `script` and `raw_options`, and `--force` if the CLI reports it not multi-install
+  safe. Add its `<agent-dir>` to the loop.
+
+Hermes writes to `~/.hermes/skills` from any directory, outside git and with an empty
+manifest. For that key set `HOME` to a second scratch directory in the subshell, keep
+its path too, and in the loop compare its `.hermes/skills` with `~/.hermes/skills`
+instead of `<agent-dir>`.
 
 The reference resolves placeholders, so unlike the bundled copy Step 4 warns
 against it diffs byte for byte, and it renders each extension's skills as well as
@@ -184,10 +239,13 @@ carries a placeholder constitution and a workflow (below).
 Expected differences, to leave alone:
 
 - `*-config.yml` — project settings;
-- `.specify/extensions/.registry` — install timestamps, and the reference's own
-  empty `registered_skills` (below);
+- `.specify/extensions/.registry` — per-install state (timestamps, `source`, order,
+  `enabled`), so a difference says nothing about `registered_skills`; the skills' own
+  diff shows a layout left behind;
 - `.cache/` and `.backup/` under `.specify/extensions/` — local CLI state;
-- `Only in <agent-dir>` for a skill this project authored.
+- `Only in <agent-dir>` for a skill this project authored, or a former default's
+  extension skills;
+- extension skills a block left behind, if the user declined the way out.
 
 Anything else is stale despite the version check. Report it; for an extension,
 ask before the fix, since the fix is a forced overwrite:
@@ -196,19 +254,12 @@ ask before the fix, since the fix is a forced overwrite:
 specify extension add <id> --force
 ```
 
-It preserves existing `*-config.yml`, so project settings survive, but leaves
-them without newly added keys, which then fall back to their defaults. Two more
-consequences to check afterward:
-
-- **`.specify/extensions/.registry` loses `registered_skills`** — the forced
-  install writes the skill files but records an empty list. Where the
-  integration's commands *are* its skills (Claude), `specify extension remove`
-  still deletes them through `registered_commands`, so nothing is lost; for any
-  other integration it reads that list to know what to delete, so an empty one
-  silently orphans them. Restore the names there.
-- **Scripts can be renamed** — v0.16.2 renamed the git extension's
-  `create-new-feature.sh` to `create-new-feature-branch.sh`. Grep for the old
-  name before assuming nothing referenced it.
+Then run `specify integration upgrade <default-key>` in the project; Step 6 repeats
+the diff. The forced install preserves existing `*-config.yml`, so project settings
+survive, but leaves them without newly added keys, which then fall back to their
+defaults. Scripts can also be renamed — v0.16.2 renamed the git extension's
+`create-new-feature.sh` to `create-new-feature-branch.sh`. Grep for the old name
+before assuming nothing referenced it.
 
 **Workflows.** `init` adds a `speckit` workflow that nothing refreshes —
 `specify workflow update` skips what `init` installed, and `init` never replaces
@@ -222,7 +273,7 @@ with the same confirmation as above.
 
 ```bash
 specify version
-specify integration status
+specify integration status --json
 ```
 
 `specify version` reads the installed CLI locally. Deliberately not `self check`
@@ -235,7 +286,17 @@ and nothing else. Compare against Step 2's list and explain any difference.
 
 Status only checks files against their own manifests, so it cannot see a layer
 left behind. Re-run Step 5's diff loop against the same reference: only its
-expected differences should remain.
+expected differences, and the files the user kept in Step 4, should remain.
+
+Then remove the CLI's catalog cache:
+
+```bash
+git clean -fdq .specify/extensions/.cache
+```
+
+It is not gitignored, so left behind it stops the next run at Step 1 or gets
+committed with this one. `git clean` leaves it alone if the project already tracks
+it.
 
 ## Output
 
@@ -249,12 +310,16 @@ expected differences should remain.
    top-level `.specify` state.
 3. Which managed files were **preserved** as locally modified, which were reset
    to upstream by decision, and which were force-refreshed and re-applied by
-   hand. Leaving that out reads as "fully upgraded" when it is not — the thing
-   most worth stating.
+   hand; also any extension skills a block left behind, and any local edit a
+   re-render overwrote. Leaving that out reads as "fully upgraded" when it is not
+   — the thing most worth stating.
 4. Anything in the diff that changes behaviour rather than wording — a new or
    renamed script, a changed hook contract, different arguments — since those are
-   what break the other `speckit-*` commands. Add the release-note items Step 2
-   found to apply.
+   what break the other `speckit-*` commands. An update or `add --force` moves
+   that extension's hooks to the end of each event in `.specify/extensions.yml`,
+   which the diff loop does not read; equal priorities run in list order, so name
+   any event whose hook order changed. Add the release-note items Step 2 found to
+   apply.
 5. State that nothing is committed. If the git extension is installed, suggest
    `/speckit-git-commit` once the user has reviewed the result.
 
@@ -266,15 +331,23 @@ expected differences should remain.
   Read the message before reporting which.
 - **`specify integration upgrade` fails for any reason other than modified
   files** → surface it and stop before Step 5, so the integration and extension
-  layers are not left refreshed against different CLI versions.
+  layers are not left refreshed against different CLI versions. If it was Step 5's
+  re-run, report the run as partial: the updates are on disk and, as of v1.2.5, the
+  affected extensions keep the layout `extension update` wrote.
 - **`specify extension update` fails** → surface it and report the run as
-  partial: Step 4's changes are already on disk and the extensions are not.
+  partial: Step 4's changes are already on disk, and the extensions may be only
+  part-way updated. Step 5's re-run still applies to any that did update.
 
 ## Fallback: re-running init
 
 ```bash
-specify init --here --force --integration <key>
+specify init --here --force --integration <key> \
+    --script <script> --ignore-agent-tools
 ```
+
+`<script>` is the one in `.specify/init-options.json`; without it a PowerShell project
+flips to `sh`. Add any `raw_options` from `.specify/integration.json` as
+`--integration-options`, or the run forgets them.
 
 An escape hatch, not the upgrade path, justified only when the manifest-aware
 path cannot run — the guide's *Fallback: re-run init* names the conditions.
@@ -286,14 +359,17 @@ It has effects the guide does not mention, each confirmed in the `init.py` of th
 version it names:
 
 - `.specify/templates/` is **not** preserved (v0.16.2) — and under this skill's
-  policy that costs nothing, because those files are already pristine. Confirm
-  rather than assume: `integration status` must report no modified template
-  afterwards.
+  policy that costs nothing, because those files are already pristine, unless the
+  user kept one; name it when asking. Confirm rather than assume: `integration
+  status` must report no modified template afterwards.
 - With `--force` it re-registers installed extensions and presets
   (`_register_extensions_for_agent(..., force=True)`, v0.16.2), overwriting the
   rendered extension files under `<agent-dir>` from the **installed** payload
   without updating that payload. Include those in the post-init diff, and still
   run Step 5 afterward.
+- It drops other integrations and their settings from `.specify/integration.json`,
+  leaving their files (v1.2.5). Note each one's `script` and `raw_options` first, then
+  restore it the way Step 5's reference installs one.
 - It reinstalls the `speckit` workflow (v1.0.7). A project that kept none deletes
   `.specify/workflows/` to have none again; `specify workflow remove` leaves
   an empty registry file behind.

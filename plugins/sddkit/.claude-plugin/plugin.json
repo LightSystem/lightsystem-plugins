@@ -1,8 +1,8 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "sddkit",
-  "version": "0.1.0",
-  "description": "Upgrades a Spec Kit project: the CLI, then its integration files and extensions, keeping templates byte-identical to upstream.",
+  "version": "0.1.1",
+  "description": "Upgrades a Spec Kit project: the CLI, then its integration files and extensions, treating template edits as drift to reset.",
   "author": {
     "name": "João Horta Alves"
   }

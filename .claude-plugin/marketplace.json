@@ -18,7 +18,7 @@
     },
     {
       "name": "sddkit",
-      "description": "Upgrades a Spec Kit project: the CLI, then its integration files and extensions, keeping templates byte-identical to upstream.",
+      "description": "Upgrades a Spec Kit project: the CLI, then its integration files and extensions, treating template edits as drift to reset.",
       "author": {
         "name": "João Horta Alves"
       },
